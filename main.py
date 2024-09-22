@@ -1,3 +1,5 @@
+import random
+
 import pygame as pg
 
 pg.init()
@@ -9,6 +11,8 @@ JUMP = -30
 PLATFORM_WIDTH = 105
 MIN_GAP = 90
 MAX_GAP = 180
+
+score = 0
 
 class PLayer(pg.sprite.Sprite):
     def __init__(self):
@@ -43,8 +47,39 @@ class PLayer(pg.sprite.Sprite):
         self.speed += GRAVITY
         self.rect.y += self.speed
 
+class BasePlatform(pg.sprite.Sprite):
+    def __init__(self, x, y, sprite):
+        super().__init__()
+        self.image = pg.image.load(sprite)
+        self.rect = self.image.get_rect(topleft=(x, y))
+
+    def on_collision(self, player):
+        player.speed = JUMP
+
+    def update(self):
+        if self.rect.top > H:
+            self.kill()
+
+class NormalPlatform(BasePlatform):
+    def __init__(self, x, y):
+        super().__init__(x, y, "img/green.png")
+
+platforms = pg.sprite.Group()
+
+def spawn_platform():
+    platform = platforms.sprites()[-1]
+    y = platform.rect.y - random.randint(MIN_GAP, MAX_GAP)
+    x = random.randint(0, W - PLATFORM_WIDTH)
+    types = [NormalPlatform]
+    Plat = random.choice(types)
+    platform = Plat(x, y)
+    platforms.add(platform)
 
 doodle = PLayer()
+
+platform = NormalPlatform(W//2 - PLATFORM_WIDTH//2, H - 50)
+platforms.add(platform)
+
 def main():
     while True:
         #1
@@ -53,8 +88,20 @@ def main():
                 return
         #2
         doodle.update()
+        platforms.update()
+        if pg.sprite.spritecollide(doodle, platforms, False) and doodle.speed > 0:
+            doodle.speed = JUMP
+        if len(platforms) < 25:
+            spawn_platform()
+        if doodle.speed < 0 and doodle.rect.bottom < H / 2:
+            doodle.rect.y -= doodle.speed
+            global score
+            score += 1
+            for platform in platforms:
+                platform.rect.y -= doodle.speed
         #3
         display.fill('white')
+        platforms.draw(display)
         doodle.draw()
         pg.display.update()
         pg.time.delay(1000 // 60)
