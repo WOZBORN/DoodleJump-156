@@ -63,6 +63,37 @@ class PLayer(Sprite):
         self.speed += GRAVITY
         self.rect.y += self.speed
 
+class BaseBonus(Sprite):
+    def __init__(self, image_path: str, plat: 'BasePlatform'):
+        img = pg.image.load(image_path)
+        w = img.get_width()
+        h = img.get_height()
+        rect = plat.rect
+        x = random.randint(rect.left + w//2, rect.right - w//2)
+        y = rect.top - h//2
+        super().__init__(x, y, image_path)
+        self.platform = plat
+        self.dx = self.rect.x - self.platform.rect.x
+
+    def on_collision(self, player):
+        global score
+        score += 1000
+        self.kill()
+
+    def update(self):
+        self.rect.x = self.platform.rect.x + self.dx
+        if self.platform.dead:
+            self.kill()
+
+class Spring(BaseBonus):
+    def __init__(self, plat):
+        super().__init__('img/spring.png', plat)
+
+    def on_collision(self, player):
+        player.speed = -50
+        self.image = pg.image.load('img/spring_1.png')
+
+
 class BasePlatform(Sprite):
     def on_collision(self, player):
         player.speed = JUMP
@@ -70,6 +101,12 @@ class BasePlatform(Sprite):
     def update(self):
         if self.rect.top > H:
             self.kill()
+
+    def attach_bonus(self):
+        if random.randint(0, 100) > 90:
+            Bonus = random.choice([Spring])
+            obj = Bonus(self)
+            platforms.add(obj)
 
 class NormalPlatform(BasePlatform):
     def __init__(self, x, y):
@@ -84,6 +121,7 @@ def spawn_platform():
     types = [NormalPlatform]
     Plat = random.choice(types)
     platform = Plat(x, y)
+    platform.attach_bonus()
     platforms.add(platform)
 
 doodle = PLayer()
