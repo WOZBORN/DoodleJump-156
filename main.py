@@ -14,13 +14,29 @@ MAX_GAP = 180
 
 score = 0
 
-class PLayer(pg.sprite.Sprite):
-    def __init__(self):
+class Sprite(pg.sprite.Sprite):
+    def __init__(self, x ,y, image_path):
         super().__init__()
-        self.image_left = pg.image.load('img/doodle_left.png')
+        self.image = pg.image.load(image_path)
+        self.rect = self.image.get_rect(center=(x, y))
+        self.dead = False
+
+    def update(self):
+        super().update()
+
+    def draw(self):
+        display.blit(self.image, self.rect)
+
+    def kill(self):
+        self.dead = True
+        super().kill()
+
+
+class PLayer(Sprite):
+    def __init__(self):
+        super().__init__(W//2, H//2, 'img/doodle_left.png')
+        self.image_left = self.image
         self.image_right = pg.transform.flip(self.image_left, True, False)
-        self.image = self.image_left
-        self.rect = self.image.get_rect(center=(W//2, H//2))
         self.speed = 0
 
     def draw(self):
@@ -47,12 +63,7 @@ class PLayer(pg.sprite.Sprite):
         self.speed += GRAVITY
         self.rect.y += self.speed
 
-class BasePlatform(pg.sprite.Sprite):
-    def __init__(self, x, y, sprite):
-        super().__init__()
-        self.image = pg.image.load(sprite)
-        self.rect = self.image.get_rect(topleft=(x, y))
-
+class BasePlatform(Sprite):
     def on_collision(self, player):
         player.speed = JUMP
 
