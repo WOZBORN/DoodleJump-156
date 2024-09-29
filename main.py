@@ -91,6 +91,12 @@ doodle = PLayer()
 platform = NormalPlatform(W//2 - PLATFORM_WIDTH//2, H - 50)
 platforms.add(platform)
 
+def is_top_collision(player: PLayer, platform: BasePlatform):
+    if player.rect.colliderect(platform.rect):
+        if player.speed > 0:
+            if player.rect.bottom < platform.rect.bottom:
+                platform.on_collision(player)
+
 def main():
     while True:
         #1
@@ -100,8 +106,7 @@ def main():
         #2
         doodle.update()
         platforms.update()
-        if pg.sprite.spritecollide(doodle, platforms, False) and doodle.speed > 0:
-            doodle.speed = JUMP
+        pg.sprite.spritecollide(doodle, platforms, False, collided=is_top_collision)
         if len(platforms) < 25:
             spawn_platform()
         if doodle.speed < 0 and doodle.rect.bottom < H / 2:
