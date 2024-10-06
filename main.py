@@ -14,6 +14,10 @@ MAX_GAP = 180
 
 score = 0
 
+def draw_text(text, font, color, x, y):
+    img = font.render(text, True, color)
+    display.blit(img, (x, y))
+
 class Sprite(pg.sprite.Sprite):
     def __init__(self, x ,y, image_path):
         super().__init__()
@@ -40,13 +44,15 @@ class PLayer(Sprite):
         self.speed = 0
 
     def draw(self):
-        if self.rect.y > H:
-            # ТУТ ПОТОМ СДЕЛАЕМ ГЕЙМ ОВЕР (но пока респавн для теста)
-            self.rect.y = H//2
+        if self.dead:
+            draw_text("GAME OVER", pg.font.Font(None, 50), 'red', W//2, H//2)
         else:
             display.blit(self.image, self.rect)
 
     def update(self):
+        if self.dead:
+            return
+
         key = pg.key.get_pressed()
         if key[pg.K_LEFT]:
             self.rect.x -= 5
@@ -62,6 +68,9 @@ class PLayer(Sprite):
 
         self.speed += GRAVITY
         self.rect.y += self.speed
+
+        if self.rect.y > H:
+            self.kill()
 
 class BaseBonus(Sprite):
     def __init__(self, image_path: str, plat: 'BasePlatform'):
