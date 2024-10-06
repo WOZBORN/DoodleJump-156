@@ -175,6 +175,7 @@ def is_top_collision(player: PLayer, platform: BasePlatform):
 
 
 def main():
+    global score
     passed_time = 0
     while True:
         #1
@@ -205,6 +206,14 @@ def main():
         platforms.draw(display)
         enemies.draw(display)
         doodle.draw()
+        if doodle.dead:
+            draw_text("GAME OVER", pg.font.Font(None, 50), 'red', W//2, H//2)
+            draw_text("Score: " + str(score), pg.font.Font(None, 50), 'red', W//2, H//2 + 50)
+            pg.display.update()
+            pg.time.delay(2000)
+            return
+        else:
+            draw_text(str(score), pg.font.Font(None, 50), 'black', 10, 10)
         pg.display.update()
         passed_time += pg.time.delay(1000 // 60)
 
