@@ -142,6 +142,16 @@ class LeftRightEnemy(BaseEnemy):
 class UpDownEnemy(BaseEnemy):
     pass
 
+enemies = pg.sprite.Group()
+
+def spawn_enemy(delay):
+    if delay > 5000:
+        delay = 0
+        Enemy = random.choice([Hole])
+        x = random.randint(0 , W - 80)
+        e = Enemy(x, -H)
+        enemies.add(e)
+    return delay
 
 doodle = PLayer()
 
