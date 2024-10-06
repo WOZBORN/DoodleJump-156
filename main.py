@@ -166,6 +166,7 @@ def is_top_collision(player: PLayer, platform: BasePlatform):
 
 
 def main():
+    passed_time = 0
     while True:
         #1
         for e in pg.event.get():
@@ -174,7 +175,11 @@ def main():
         #2
         doodle.update()
         platforms.update()
+        enemies.update()
         pg.sprite.spritecollide(doodle, platforms, False, collided=is_top_collision)
+        hit_enemy = pg.sprite.spritecollide(doodle, enemies, False)
+        if hit_enemy:
+            doodle.kill()
         if len(platforms) < 25:
             spawn_platform()
         if doodle.speed < 0 and doodle.rect.bottom < H / 2:
@@ -183,12 +188,16 @@ def main():
             score += 1
             for platform in platforms:
                 platform.rect.y -= doodle.speed
+            for enemy in enemies:
+                enemy.rect.y -= doodle.speed
+        passed_time = spawn_enemy(passed_time)
         #3
         display.fill('white')
         platforms.draw(display)
+        enemies.draw(display)
         doodle.draw()
         pg.display.update()
-        pg.time.delay(1000 // 60)
+        passed_time += pg.time.delay(1000 // 60)
 
 if __name__ == '__main__':
     main()
