@@ -124,6 +124,25 @@ def spawn_platform():
     platform.attach_bonus()
     platforms.add(platform)
 
+class BaseEnemy(Sprite):
+    def update(self):
+        if self.rect.top > H:
+            self.kill()
+
+    def on_collision(self, player):
+        player.kill()
+
+class Hole(BaseEnemy):
+    def __init__(self, x, y):
+        super().__init__(x, y, "img/enemy_hole.png")
+
+class LeftRightEnemy(BaseEnemy):
+    pass
+
+class UpDownEnemy(BaseEnemy):
+    pass
+
+
 doodle = PLayer()
 
 platform = NormalPlatform(W//2 - PLATFORM_WIDTH//2, H - 50)
@@ -134,6 +153,7 @@ def is_top_collision(player: PLayer, platform: BasePlatform):
         if player.speed > 0:
             if player.rect.bottom < platform.rect.bottom:
                 platform.on_collision(player)
+
 
 def main():
     while True:
